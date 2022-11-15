@@ -1,8 +1,7 @@
 import {
     ApolloCache,
-    ApolloClient,
-    gql,
-    InMemoryCache,
+    ApolloClient, FetchResult,
+    InMemoryCache, MutationOptions,
     NormalizedCacheObject,
     OperationVariables,
     TypedDocumentNode,
@@ -26,25 +25,32 @@ export class Client<T extends Client<any>> {
         this.client = new ApolloClient<NormalizedCacheObject>({uri, cache});
     }
 
-    protected async request<T = any, TVariables = OperationVariables>(
+    protected async query<T = any, TVariables = OperationVariables>(
         query: TypedDocumentNode<T, TVariables>,
         variables: TVariables,
     ): Promise<T> {
-        const result = await this.query({query, variables});
+        const result = await this.queryRaw({query, variables});
         return result.data;
     }
 
-    protected async requestString<T = any, TVariables = OperationVariables>(
-        query: string,
-        variables: TVariables,
-    ): Promise<T> {
-        return this.request(gql(query), variables);
-    }
-
-    protected async query<T = any, TVariables = OperationVariables>(
+    protected async queryRaw<T = any, TVariables = OperationVariables>(
         options: QueryOptions<TVariables, T>,
     ): Promise<ApolloQueryResult<T>> {
         return this.client.query(options);
+    }
+
+    protected async mutate<TData = any, TVariables = OperationVariables>(
+        mutation: TypedDocumentNode<TData, TVariables>,
+        variables: TVariables,
+    ): Promise<TData> {
+        const result = await this.mutateRaw<TData, TVariables>({mutation, variables});
+        return result.data;
+    }
+
+    protected async mutateRaw<TData = any, TVariables = OperationVariables>(
+        options: MutationOptions<TData, TVariables>,
+    ): Promise<FetchResult<TData>> {
+        return this.client.mutate<TData, TVariables>(options);
     }
 
 }
