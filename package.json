@@ -17,6 +17,7 @@
     "graphql": "^16.6.0"
   },
   "files": [
+    "client.ts",
     "client.js"
   ]
 }
